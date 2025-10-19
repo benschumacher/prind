@@ -20,6 +20,7 @@ RUN git clone ${REPO} klipper \
  && git checkout ${VERSION} \
  && echo -n $(git describe --tags)-prind > klippy/.version \
  && rm -rf .git
+ADD https://raw.githubusercontent.com/dw-0/kiauh/refs/heads/master/kiauh/extensions/gcode_shell_cmd/assets/gcode_shell_command.py /opt/klipper/klippy/extras/
 
 RUN venv/bin/pip install -r klipper/scripts/klippy-requirements.txt \
  && venv/bin/python -m compileall klipper/klippy \
