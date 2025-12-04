@@ -33,6 +33,7 @@ services:
       - gcode:/opt/printer_data/gcodes
       - log:/opt/printer_data/logs
       - ./modules:/opt/printer_data/modules
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       org.prind.service: klipper
 
@@ -79,7 +80,6 @@ services:
       - moonraker-db:/opt/printer_data/database
       - ./config:/opt/printer_data/config
       - ./modules:/opt/printer_data/modules
-      - /var/run/docker.sock:/var/run/docker.sock
 
   glances:
     image: nicolargo/glances:latest-full

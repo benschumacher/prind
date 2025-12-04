@@ -37,6 +37,17 @@ RUN groupadd klipper --gid 1000 \
  && useradd klipper --uid 1000 --gid klipper \
  && usermod klipper --append --groups dialout \
  && usermod klipper --append --groups tty
+RUN apt update \
+ && apt install -y ca-certificates curl \
+ && install -m 0755 -d /etc/apt/keyrings \
+ && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
+ && chmod a+r /etc/apt/keyrings/docker.asc \
+ && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" | tee /etc/apt/sources.list.d/docker.list \
+ && apt update \
+ && apt install -y --no-install-recommends docker-ce-cli \
+ && apt clean
+RUN groupadd docker --gid 996 \
+ && usermod klipper --append --groups docker
 RUN mkdir -p printer_data/run printer_data/gcodes printer_data/logs printer_data/config \
  && chown -R klipper:klipper /opt/*
 
