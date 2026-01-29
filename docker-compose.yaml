@@ -7,8 +7,8 @@ services:
     image: ghcr.io/benschumacher/ender3-v3-se-klipper-with-display:latest
     restart: unless-stopped
     privileged: true
-    #logging:
-    #  driver: none
+    logging:
+      driver: none
     depends_on:
       init:
         condition: service_completed_successfully
