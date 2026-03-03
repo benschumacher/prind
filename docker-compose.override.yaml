@@ -101,6 +101,16 @@ services:
       traefik.http.routers.glances.rule: PathPrefix(`/glances`)
       traefik.http.routers.glances.entrypoints: web
 
+  traefik:
+    image: traefik:3.6
+    command:
+      - "--accesslog=true"
+      - "--accesslog.filters.statuscodes=100-399,500-599"
+#      - "--log.level=ERROR"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+
   webcam:
     <<: *ustreamer-svc
     devices:
