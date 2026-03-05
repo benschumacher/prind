@@ -1,0 +1,57 @@
+services:
+  klipper-backup:
+    image: alpine/git
+    restart: no
+    volumes:
+      - .:/source:ro
+      - ./config:/opt/printer_data/config:ro
+      - printer_data:/opt/printer_data
+      - run:/opt/printer_data/run:ro
+      - gcode:/opt/printer_data/gcodes:ro
+      - log:/opt/printer_data/logs:ro
+      - /home/ben/.ssh/klipper_backup_key.id_ed25519:/root/.ssh/id_ed25519
+    working_dir: /opt/printer_data
+    entrypoint: |-
+      sh -x -c '
+      apk add -U --no-cache tzdata tar
+      export TZ=America/Denver
+      # Set up SSH for GitHub with stricter host key checking
+      (umask 0077 && mkdir -p /root/.ssh)
+      echo "Host github.com" > /root/.ssh/config
+      echo "  IdentityFile /root/.ssh/id_ed25519" >> /root/.ssh/config
+      echo "  StrictHostKeyChecking accept-new" >> /root/.ssh/conifg
+      # Trust GitHub host key
+      ssh-keyscan github.com > /root/.ssh/known_hosts
+
+      if [ ! -d .git ]; then
+        git config --global init.defaultBranch "main"
+        git init
+        git config user.email "me+klipper-backup@benschumacher.com"
+        git config user.name  "Ben Schumacher dba Klipper Backup"
+        echo "*.gcode" > .gitignore
+        echo ".moonraker_database" >> .gitignore
+        echo "printer-*.cfg" >> .gitignore
+        echo "gcodes/" >> .gitignore
+        echo "logs/" >> .gitignore
+        echo "cached_*.cfg" >> .gitignore
+        git add .gitignore
+        git commit -m "Initial setup"
+        git remote add origin git@github.com:benschumacher/e3v3se.git
+      fi
+
+      mkdir -vp /opt/printer_data/compose /opt/printer_data/modules
+      (cd /source && tar -cf - *.yaml prind.bash) | tar -C /opt/printer_data/compose -xvf -
+      tar -C /source -cf - --exclude=".git*" modules | tar -C /opt/printer_data -xvf -
+
+      if [ -n "$$(git status --porcelain)" ]; then
+        git add -A
+        git commit -m "Automated backup $$(date +'"'%Y-%m-%d %H:%M:%S %Z'"')"
+        if git remote -v | grep -q "origin"; then
+          git push origin main || echo "Push failed"
+        else
+          echo "No remote configured, skipping push"
+        fi
+      else
+        echo "No changes detected"
+      fi
+      '

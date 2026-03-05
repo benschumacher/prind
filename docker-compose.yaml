@@ -4,7 +4,7 @@ services:
   ## Klippy Services
   ##
   klipper:
-    image: ghcr.io/benschumacher/ender3-v3-se-klipper-with-display:latest
+    image: mkuf/klipper:latest
     restart: unless-stopped
     privileged: true
     logging:
@@ -23,7 +23,6 @@ services:
       - run:/opt/printer_data/run
       - gcode:/opt/printer_data/gcodes
       - log:/opt/printer_data/logs
-      - ./modules:/opt/printer_data/modules
     labels:
       org.prind.service: klipper
 
@@ -33,9 +32,8 @@ services:
     image: mkuf/moonraker:latest
     restart: unless-stopped
     pid: host
-    hostname: moonraker-e3v3se
-    #logging:
-    #  driver: none
+    logging:
+      driver: none
     depends_on:
       init:
         condition: service_completed_successfully
@@ -51,7 +49,6 @@ services:
       - log:/opt/printer_data/logs
       - moonraker-db:/opt/printer_data/database
       - ./config:/opt/printer_data/config
-      - ./modules:/opt/printer_data/modules
     profiles:
       - fluidd
       - mainsail
@@ -231,7 +228,6 @@ volumes:
   gcode:
   octoprint:
   moonraker-db:
-  printer_data:
   log:
     driver_opts:
       type: tmpfs

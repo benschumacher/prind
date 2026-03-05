@@ -39,6 +39,7 @@ services:
 
   moonraker:
     image: moonraker:kamp
+    hostname: moonraker-e3v3se
     build:
       dockerfile_inline: |
         FROM alpine/git as pull
@@ -123,4 +124,7 @@ services:
       traefik.http.routers.webcam.entrypoints: web
       traefik.http.middlewares.webcam.stripprefix.prefixes: /webcam
       traefik.http.routers.webcam.middlewares: webcam
+
+volumes:
+  printer_data:
 
