@@ -1,0 +1,7 @@
+services:
+  tools:
+    volumes:
+      - /dev:/dev
+      - ./config/build-shaper.config:/opt/klipper/.config
+      - ./out/shaper:/opt/klipper/out
+      - ./resonances:/opt/klipper/resonances
